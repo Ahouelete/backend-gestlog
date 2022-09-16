@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
+import { PieceJointeDao } from "./pieceJointeDao"
 
 export enum rolesUser{
     NONE = 'NONE',
@@ -71,4 +72,7 @@ export class User {
         select: false
     })
     role: rolesUser
+
+    @OneToMany(() => PieceJointeDao, (pieceAConsituerDao) => pieceAConsituerDao.personneResponsabilise)
+    pieceAConsituerDao : PieceJointeDao
 }

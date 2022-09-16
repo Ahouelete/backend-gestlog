@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne } from "typeorm"
 import { Marche } from "./marche"
 import { ReglementFactureMarche } from "./reglementFactureMarche"
 
@@ -27,9 +27,9 @@ export class FactureMarche {
     montantPaye: number
 
     @OneToMany(() => ReglementFactureMarche, (reglementFactureMarche) => reglementFactureMarche.factureMarche)
-    reglementFactureMarche: ReglementFactureMarche
+    reglementFactureMarche: ReglementFactureMarche []
 
-    @OneToOne(() => Marche, (marche) => marche.factureMarche)
+    @ManyToOne(() => Marche, (marche) => marche.factureMarche)
     @JoinColumn()
     marche: Marche
 
@@ -37,6 +37,9 @@ export class FactureMarche {
         nullable: false
     })
     statut: string
+
+    @Column()
+    desgnOperation: string
 
     @Column({
         nullable: true

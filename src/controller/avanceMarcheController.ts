@@ -1,27 +1,24 @@
 //imports
 import { Not } from "typeorm";
 import { AppDataSource } from "../data-source";
+import { AvanceMarche } from "../entity/avance_marche";
 import { Dao } from "../entity/dao";
 import { Marche } from "../entity/marche";
-import { StatutDao } from "../entity/statutDao";
-import { StatutMarche } from "../entity/statutMarche";
+import { ModeReglement } from "../entity/modeReglement";
 import { TypeFinancement } from "../entity/typeFinancement";
 
 //Constantes
 const marcheRepository = AppDataSource.getRepository(Marche)
-const statutMarcheRepository = AppDataSource.getRepository(StatutMarche)
-const typeFinancementRepository = AppDataSource.getRepository(TypeFinancement)
-const daoRepository = AppDataSource.getRepository(Dao)
+const modeReglementRepository = AppDataSource.getRepository(ModeReglement)
+const avanceMarcheRepository = AppDataSource.getRepository(AvanceMarche)
 //Controller
-export class MarcheController {
+export class AvanceMarcheController {
     //
     async all(req, res, next) {
         try {
-            const results = await marcheRepository.find({
+            const results = await avanceMarcheRepository.find({
                 relations: {
-                    typeFinancement: true,
-                    statutMarche: true,
-                    dao: true
+                    marche: true,
                 }
             })
             return res.send({ description: 'success', data: results })
@@ -32,51 +29,59 @@ export class MarcheController {
 
     async add(req, res, next) {
         try {
-            const marcheAdd = req.body
-            if (marcheAdd.code == null || marcheAdd.code == undefined || marcheAdd.designation == null
-                || marcheAdd.designation == undefined || marcheAdd.maitreOuvrage == null || marcheAdd.maitreOuvrage == undefined) {
-                return res.send({ description: 'error', message: 'Le code ou la désignation du dao n\'est pas renseignée' })
+            const avanceAdd = req.body
+            if (avanceAdd.libelle == null || avanceAdd.libelle == undefined
+                || avanceAdd.avance == undefined || avanceAdd.avance == null || avanceAdd.avance == 0) {
+                return res.send({ description: 'error', message: 'Certaines rubriques obligatoires ne sont pas renseignées' })
             }
 
-            const statut = await statutMarcheRepository.find({
+            const modeReglementFound = await modeReglementRepository.findOne({
                 where: {
-                    id: marcheAdd.statutMarche.id,
-                    statut: marcheAdd.statutMarche.status
+                    id: avanceAdd.modeReglement.id,
+                    intitule: avanceAdd.modeReglement.intitule
                 }
             })
+            if (!modeReglementFound) return res.send({ description: 'error', message: "L'objet mode de règlement n'est pas valide ou n'exite pas" })
 
-            const type = await typeFinancementRepository.find({
+            const marcheFound = await marcheRepository.findOne({
                 where: {
-                    id: marcheAdd.typeFinancement.id,
-                    type: marcheAdd.typeFinancement.type
+                    id: avanceAdd.marche.id,
+                    code: avanceAdd.marche.code,
+                    designation: avanceAdd.marche.designation
+                },
+                relations: {
+                    avance_marche: true,
+                    factureMarche: {
+                        reglementFactureMarche: true
+                    }
                 }
             })
-            const dao = await daoRepository.find({
-                where: {
-                    id: marcheAdd.dao.id,
-                    code: marcheAdd.dao.code,
-                    designation: marcheAdd.dao.designation
-                }
+            if (marcheFound)
+                return res.send({ description: 'error', message: "L'objet marche n'est pas valide ou n'exite pas" })
+
+            if (marcheFound.statutMarche.statut = 'RECEPTION DEFINITIVE')
+                return res.send({ description: 'error', message: "Ce marché a été déjà receptionné de facon définitive" })
+
+            const montantDuMarche = marcheFound.montantGlobal
+            const avanceEnCours = avanceAdd.avance
+            let totalAvanceDispo = 0
+            let totalSolder = 0
+            marcheFound.avance_marche.forEach(element => {
+                totalAvanceDispo = totalAvanceDispo + element.avanceDisponible
             })
-            if (dao.length == 0) return res.send({ description: 'error', message: "L'objet DAO n'est pas valide ou n'exite pas" })
-            if (statut.length == 0) return res.send({ description: 'error', message: "L'objet statutMarche n'est pas valide ou n'exite pas" })
-            if (type.length == 0) return res.send({ description: 'error', message: "L'objet type Financement n'est pas valide ou n'exite pas" })
+            marcheFound.factureMarche.forEach(element => {
+                element.reglementFactureMarche.forEach(e => {
+                    totalSolder = totalSolder + e.montantReg
+                });
+            })
 
-            const results = await marcheRepository.find(
-                {
-                    where: [
-                        { code: marcheAdd.code },
-                        { designation: marcheAdd.designation }
-                    ]
-                }
-            )
+            const diff = montantDuMarche - totalSolder - totalAvanceDispo - avanceEnCours
+            if (diff < 0)
+                return res.send({ description: 'error', message: 'La somme des avances ne peut être superieure au montant du marche' })
 
-            if (results.length != 0) {
-                return res.send({ description: 'error', message: 'Le code ou désignation renseigné existe déjà pour un marché.' })
-            }
-            
-            const result = await marcheRepository.create(marcheAdd)
-            const reslts = await marcheRepository.save(result)
+
+            const result = await avanceMarcheRepository.create(avanceAdd)
+            const reslts = await avanceMarcheRepository.save(result)
             return res.send({ description: 'success', data: reslts })
         }
 
@@ -101,18 +106,9 @@ export class MarcheController {
                 return res.send({ description: 'error', message: 'La rubrique designation de l\'objet Marché nest pas renseignée' })
             }
 
-            const statut = await statutMarcheRepository.find({
-                where: {
-                    id: marcheUpdated.statutMarche.id,
-                    statut: marcheUpdated.statutMarche.status
-                }
-            })
-            const type = await typeFinancementRepository.find({
-                where: {
-                    id: marcheUpdated.typeFinancement.id,
-                    type: marcheUpdated.typeFinancement.type
-                }
-            })
+            const statut = await avanceMarcheRepository.find()
+
+            const type = await avanceMarcheRepository.find()
 
             if (statut.length == 0) return res.send({ description: 'error', message: "L'objet StatutMarche n'est pas valide ou n'exite pas" })
             if (type.length == 0) return res.send({ description: 'error', message: "L'objet Type Financement n'est pas valide ou n'exite pas" })
@@ -151,12 +147,12 @@ export class MarcheController {
             if (id == null || id == undefined) {
                 return res.send({ description: 'error', message: 'ID invalide ou incorrect' })
             }
-            const marcheFound = await marcheRepository.find({
+            const avanceFound = await avanceMarcheRepository.find({
                 where: {
                     id: id
                 }
             })
-            await marcheRepository.remove(marcheFound)
+            await avanceMarcheRepository.remove(avanceFound)
             return res.send({ description: 'success', data: 'Supprimé avec succes' }).status(200)
 
         } catch (error) {
@@ -168,7 +164,7 @@ export class MarcheController {
         try {
             const { id } = req.params
             if (!id) return res.send({ description: 'error', message: 'ID renseigné est invalide ou incorrect' })
-            const result = await statutMarcheRepository.findOneBy({ id: id })
+            const result = await avanceMarcheRepository.findOneBy({ id: id })
             const results = await marcheRepository.find({
                 where: {
                     statutMarche: {
@@ -191,7 +187,7 @@ export class MarcheController {
         try {
             const factures = await marcheRepository.find(
                 {
-                    relations:{
+                    relations: {
                         statutMarche: true,
                         typeFinancement: true,
                         dao: true,

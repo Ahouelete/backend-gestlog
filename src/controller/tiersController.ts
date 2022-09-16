@@ -35,7 +35,9 @@ export class TiersController {
                     typeTiers: true
                 },
                 where: {
-                    typeTiers
+                    typeTiers: {
+                        id: typeTiers.id
+                    }
                 }
             })
             return res.send({ description: 'success', data: results })

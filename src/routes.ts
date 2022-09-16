@@ -14,18 +14,19 @@ import { MarcheController } from "./controller/marcheController";
 import { MetaData } from "./controller/metadataController";
 import { OperationChantierController } from "./controller/operationChantierController";
 import { PanneController } from "./controller/panneController";
+import { PieceDaoController } from "./controller/pieceDaoController";
 import { P_MECEFController } from "./controller/pMecefController";
 import { P_SOCIETEController } from "./controller/pSocieteController";
 import { ReglementFactureMarcheController } from "./controller/reglementFactureMarcheController";
+import { SoumissionnaireController } from "./controller/soumissionnaireController";
 import { TaxeController } from "./controller/taxeController";
 import { TiersController } from "./controller/tiersController";
 import { UsersController } from "./controller/usersController";
 
-
-
 //constantes
 const router = express.Router()
 const familleController = new FamilleController()
+const soumissionnaireController = new SoumissionnaireController()
 const mecefController = new P_MECEFController()
 const metaDataController = new MetaData()
 const factureMarcheController = new FactureMarcheController()
@@ -45,6 +46,7 @@ const articleController = new ArticleController()
 const marcheController = new MarcheController()
 const reglementFactureMarcheController = new ReglementFactureMarcheController
 const societeController = new P_SOCIETEController()
+const pieceDaoController = new PieceDaoController()
 
 //Gestionnaires routes pour api
 exports.apiRouter = (function () {
@@ -308,7 +310,93 @@ exports.apiRouter = (function () {
    */
   router.route('/api/famille/delete/:id').delete(familleController.delete)
 
+  //** ROUTES POUR API GESTION DES SOUMISSIONNAIRES */
+  /**
+   * @swagger
+   * tags:
+   *  name: Soumissionnaire
+   *  description: API de gestion des soumissionnaires
+   */
+  /**
+   * @swagger
+   * /api/soumissionnaire/all:
+   *  get:
+   *      summary: Retourne la liste des soumissionnaires
+   *      description: Retourne la liste des soumissionnaires
+   *      tags: [Soumissionnaire]
+   *      responses:
+   *          200:
+   *              description: Success
+   *              schema:
+   *                  type: array
+   *                  $ref: '#/definitions/Soumissionnaire'
+   */
+  router.route('/api/soumissionnaire/all').get(soumissionnaireController.all)
 
+  /**
+   * @swagger
+   * /api/soumissionnaire/add:
+   *  post:
+   *      summary : Enregistrer un soumissionnaire
+   *      description: Enregistrer un soumissionnaire
+   *      tags: [Soumissionnaire]
+   *      parameters:
+   *          - in : body
+   *            name: Soumissionnaire
+   *            required: true
+   *            schema:
+   *              type: object
+   *              $ref: '#/definitions/Soumissionnaire'
+   *      responses:
+   *        200:
+   *          description: Success
+   *          schema:
+   *              type: object
+   *              $ref: '#/definitions/Soumissionnaire'
+   */
+  router.route('/api/soumissionnaire/add').post(soumissionnaireController.add)
+
+  /**
+   * @swagger
+   * /api/soumissionnaire/update:
+   *  put:
+   *    summary: Mise a jour du soumissionnaire
+   *    description: Mise à jour du soumissionnaire
+   *    tags: [Soumissionnaire]
+   *    parameters:
+   *      in: body
+   *      name: Soumissionnaire
+   *      required: true
+   *      schema:
+   *        type: object
+   *        $ref: '#/definitions/Soumissionnaire'
+   *    responses:
+   *      200:
+   *        description: Success
+   *        schema:
+   *          type: object
+   *          $ref: '#/definitions/Soumissionnaire'
+   */
+  router.route('/api/soumissionnaire/update').put(soumissionnaireController.update)
+
+/**
+ * @swagger
+ * /api/soumissionnaire/delete/{id}:
+ *  delete:
+ *      summary: Supprimer un soumissionnaire
+ *      description: Supprimer un soumissionnaire
+ *      tags: [Soumissionnaire]
+ *      parameters:
+ *          in: body
+ *          name: soumissionnaireId
+ *          required: true
+ *          type: number
+ *      responses:
+ *        200:
+ *          description: Success
+ *          type: object
+ */
+router.route('/api/soumissionnaire/delete/:id').delete(soumissionnaireController.delete)
   //******ROUTES POUR API GESTION DES CONTRATS DES SOUS TRAITANTS */
   /**
    * @swagger
@@ -1644,6 +1732,97 @@ exports.apiRouter = (function () {
    */
   router.route('/api/categoriearticle/delete/:id').delete(categorieArticleController.delete)
 
+
+
+  //******ROUTES POUR API GESTION LES PIECES DAO */
+  /**
+   * @swagger
+   * tags:
+   *  name: Piece DAO
+   *  description: API de gestion des pieces Dao
+   */
+  /**
+   * @swagger
+   * /api/piecedao/all:
+   *  get:
+   *      summary: Retourne la liste des pieces dao
+   *      description: Retourne la liste des pieces dao
+   *      tags: [Piece DAO]
+   *      responses:
+   *          200:
+   *              description: Success
+   *              schema:
+   *                  type: array
+   *                  $ref: '#/definitions/PieceDao'
+   */
+  router.route('/api/piecedao/all').get(pieceDaoController.all)
+
+  /**
+   * @swagger
+   * /api/piecedao/add:
+   *  post:
+   *      summary: Enregistrer une nouvelle piece dao
+   *      description: Enregistrer une nouvelle piece Dao
+   *      tags: [Piece DAO]
+   *      parameters:
+   *          - in: body
+   *            name: PieceDao
+   *            required: true
+   *            schema: 
+   *              type: object
+   *              $ref: '#/definitions/PieceDao'
+   *      responses:
+   *          200:
+   *              description: Success
+   *              schema:
+   *                  type: object
+   *                  $ref: '#/definitions/PieceDao'
+   */
+  router.route('/api/piecedao/add').post(pieceDaoController.add)
+
+  /**
+   * @swagger
+   * /api/piecedao/update:
+   *  put:
+   *      summary: Modifier une piece dao
+   *      description: Modifier une piece dao
+   *      tags: [Piece DAO]
+   *      parameters:
+   *          - in: body
+   *            name: PieceDao
+   *            required: true
+   *            schema:
+   *              type: object
+   *              $ref: '#/definitions/PieceDao'
+   *      responses:
+   *          200:
+   *              description: Success
+   *              schema:
+   *                  type: object
+   *                  $ref: '#/definitions/PieceDao'
+   */
+  router.route('/api/piecedao/update').put(pieceDaoController.update)
+
+
+  /**
+   * @swagger
+   * /api/piecedao/delete/{id}:
+   *  delete:
+   *      summary: Supprimer une piece dao
+   *      description: Supprimer une piece DAO
+   *      tags: [Piece DAO]
+   *      parameters:
+   *          - in: path
+   *            name: id
+   *            required: true
+   *            type: number
+   *      responses:
+   *          200:
+   *              description: Success
+   *              type: object
+   */
+  router.route('/api/piecedao/delete/:id').delete(pieceDaoController.delete)
+
   //** ROUTES API POUR LA GESTION DES DAO */
 
   /**
@@ -1669,7 +1848,7 @@ exports.apiRouter = (function () {
    *                 $ref: '#/definitions/Dao'
    */
   router.route('/api/dao/allDaoWinWithoutMarche').get(daoController.allDaoWinWithoutMarche)
-
+  
   /**
    * @swagger
    * /api/dao/all:
@@ -1700,7 +1879,7 @@ exports.apiRouter = (function () {
    *            required: true
    *            schema:
    *              type: object
-   *              $ref: '#/definitions/Dao'
+   *              $ref: '#/definitions/DaoAndPiece'
    *      responses:  
    *          200:
    *              description: Success
@@ -1709,6 +1888,26 @@ exports.apiRouter = (function () {
    *                  $ref: '#/definitions/Dao'
    */
   router.route('/api/dao/add').post(daoController.add)
+
+    /**
+   * @swagger
+   * /api/dao/donwloadPieceJointe/{pieceJointeID}:
+   *  get:
+   *      description: Telecharge la piece jointe
+   *      summary: elecharge la piece jointe
+   *      tags: [DAO]
+   *      parameters:
+   *          - in: path
+   *            name: pieceJointeID
+   *            type: number
+   *            description: ID DAO
+   *            required: true
+   *      responses:
+   *          200:
+   *              description: Success
+   *              type: object
+   */
+    router.route('/api/dao/donwloadPieceJointe/:pieceJointeID').get(daoController.downloadFile)
 
   /**
    * @swagger
@@ -1742,11 +1941,11 @@ exports.apiRouter = (function () {
    *      tags: [DAO]
    *      parameters:
    *          - in: body
-   *            name: Dao
+   *            name: dao
    *            required: true
    *            schema:
    *              type: object
-   *              $ref: '#/definitions/Dao'
+   *              $ref: '#/definitions/DaoAndPiece'
    *      responses:
    *          200: 
    *              description: Success
@@ -1801,6 +2000,30 @@ exports.apiRouter = (function () {
    *                  $ref: '#/definitions/StatutDao'
    */
   router.route('/api/statutDao/all').get(metaDataController.allStatutDao)
+
+  /**
+   * @swagger
+   * tags:
+   *  name: Meta-données
+   *  description: API pour la gestion des meta-données de l'application
+   */
+
+  /**
+   * @swagger
+   * /api/motifRejet/all:
+   *  get:
+   *      summary: Retourne la liste des motifs
+   *      description: Retourne la liste des motifs
+   *      tags: [Meta-données]
+   *      responses:
+   *          200:
+   *              description: Success
+   *              type: array
+   *              schema:
+   *                type: object
+   *                $ref: '#/definitions/MotifRejet'
+   */
+  router.route('/api/motifRejet/all').get(metaDataController.allMotifRejet)
 
   //** ROUTES API POUR LA GESTION DES MARCHE */
 
@@ -2105,6 +2328,22 @@ exports.apiRouter = (function () {
    *          intitule:
    *              type: string
    *              description: Designe l'intitule de la famille d'article
+   *  PieceDao:
+   *      type: object
+   *      required:
+   *          - id
+   *          - code
+   *          - designation
+   *      properties:
+   *          id: 
+   *              type: number
+   *              description: id generer de facon automatique
+   *          code:
+   *              type: string
+   *              description: Designe le code la piece a fournir 
+   *          designation:
+   *              type: string
+   *              description: Designe la designation de la piece a fournir
    *  CategorieTarifaire:
    *      type: object
    *      required:
@@ -2198,6 +2437,7 @@ exports.apiRouter = (function () {
    *          - designation
    *          - maitreOuvrage
    *          - financement
+   *          - estEntierementFacture
    *      properties:
    *          id:
    *              type: number
@@ -2257,6 +2497,9 @@ exports.apiRouter = (function () {
    *          resteAPayer:
    *              type: number
    *              description: Reste à payer
+   *          estEntierementFacture:
+   *              type: boolean
+   *              description: Indique si le marché est entierement facturé
    *          tauxRealisation:
    *              type: number
    *              description: Taux de réalisation
@@ -2812,7 +3055,72 @@ exports.apiRouter = (function () {
    *              $ref: '#/definitions/TypeArticle'
    *          categorieArticle:
    *              type: object
-   *              $ref: '#/definitions/CategorieArticle'    
+   *              $ref: '#/definitions/CategorieArticle' 
+   * 
+   *  MotifRejet: 
+   *      type: object
+   *      required:
+   *          - id
+   *          - motif
+   *      properties:
+   *          id:
+   *            type: number
+   *            designation: Id genere de facon automatique
+   *          motif:
+   *            type: string
+   *            designation: Motif du rejet DAO  
+   * 
+   *  DaoMotifRejet:
+   *      type: object
+   *      required:
+   *          - id
+   *          - motifRejet
+   *          - dao
+   *      properties:
+   *          id: 
+   *              type: number
+   *              designation: ID generer de facon automatique
+   *          motifRejet:
+   *              type: object
+   *              $ref: '#/definitions/MotifRejet'
+   *          dao:  
+   *              type: object
+   *              $ref: '#/definitions/Dao'
+   * 
+   *  Soumissionnaire:
+   *      type: object
+   *      required: 
+   *          - id
+   *          - numero
+   *          - intitule
+   *      properties:
+   *          id:
+   *            type: number
+   *            designation: Id generer de facon automatique
+   *          numero:
+   *            type: string
+   *            designation: Numero du soumissionnaire
+   *          intitule:
+   *            type: string
+   *            designation: Intitule du soumissionnaire
+   *  
+   *  DaoSoumissionnaire:
+   *      type: object
+   *      required:
+   *          - id
+   *          - dao
+   *          - soumissionnaire
+   *      properties:
+   *          id: 
+   *            type: number
+   *            designation: ID generer de facon automatique
+   *          dao:
+   *            type: object
+   *            $ref: '#/definitions/Dao'
+   *          soumissionnaire:
+   *            type: object
+   *            $ref: '#/definitions/Soumissionnaire'
+   *            
    *  Chantier:
    *      type: object
    *      required:
@@ -2875,7 +3183,6 @@ exports.apiRouter = (function () {
    *          marche:
    *              type: object
    *              $ref: '#/definitions/Marche'
-   * 
    *  ContratSousTraitant:
    *      type: object
    *      required:
@@ -2933,8 +3240,49 @@ exports.apiRouter = (function () {
    *          tiers:
    *              type: object
    *              $ref: '#/definitions/Tiers'
+   * 
+   *  DaoAndPiece:
+   *      type: object
+   *      required:
+   *          - dao
+   *      properties:
+   *          dao:
+   *              type: object
+   *              $ref: '#/definitions/Dao'
+   *          pieceJointeDao:
+   *              type: object
+   *              $ref: '#/definitions/PieceJointeDao'
+   *  PieceJointeDao:
+   *      type: object
+   *      required:
+   *          - id
+   *          - estFournie
+   *          - estObligatoire
+   *          - pieceDao
+   *          - dao
+   *      properties:
+   *          id:
+   *              type: number
+   *              description: id genere de facon automatique
+   *          estFournie: 
+   *              type: boolean
+   *              description: Indique si la piece est fournie
+   *          estObligatoire:
+   *              type: string
+   *              description: Indique si la piece est obligatoire
+   *          pieceJointe:
+   *              type: string
+   *              description: la piece jointe au format base 64
+   *          autresInfos:
+   *              type: string
+   *              description: Autres Informations sur la pièce a joindre
+   *          pieceDao:
+   *              type: object
+   *              $ref: '#/definitions/PieceDao'
+   *          dao:
+   *              type: object
+   *              $ref: '#/definitions/Dao' 
    */
-
   //*** FIN DOCUMENTTION DES MODELES OU COMPOSANTS DE LAPI */
   return router;
 })();

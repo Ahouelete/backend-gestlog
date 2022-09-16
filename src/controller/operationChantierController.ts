@@ -34,7 +34,9 @@ export class OperationChantierController {
                     entrepot: true
                 },
                 where: {
-                    entrepot
+                    entrepot: {
+                        id: entrepot.id
+                    }
                 }
             })
             return res.send(results)

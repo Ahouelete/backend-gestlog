@@ -1,5 +1,5 @@
 import { AppDataSource } from "./data-source"
-import express, { application } from "express"
+import express from "express"
 import swaggerJsDoc from "swagger-jsdoc"
 import swaggerUi from "swagger-ui-express"
 import bodyParer from "body-parser"
@@ -15,7 +15,8 @@ const corsOptions = {
 AppDataSource.initialize().then(async () => {
 
     const app = express()
-    app.use(bodyParer.json())
+    app.use(bodyParer.json({ limit: "50mb" }));
+    app.use(bodyParer.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }));
     app.use(cors(corsOptions))
     // Definition des configurations pour la Documentations du web sevice
     const swaggerOptions = {
@@ -31,7 +32,9 @@ AppDataSource.initialize().then(async () => {
                 }
             },
             servers: {
-                url: ['http://localhost:25000', 'https://localhost:25000']
+                // url: ['https://boiling-forest-65930.herokuapp.com']
+                //url: ['http://localhost/']
+                url: ['https://backend-gestlog.herokuapp.com']
             },
             securityDefinitions: {
                 Authentification: {
@@ -55,10 +58,9 @@ AppDataSource.initialize().then(async () => {
     const metaDatas = new MetaData()
     metaDatas.add(null, null, null)
 
-    
     //*** FIN INSERTION DES DONNEES PARAMETRABLES */
 
     //PORT DECOUTE DU SERVEUR
-    app.listen(25000)
-
+    //app.listen(9000)
+    app.listen(process.env.PORT || 3000)
 }).catch(error => console.log(error))

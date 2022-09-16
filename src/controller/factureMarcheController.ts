@@ -40,9 +40,10 @@ export class FactureMarcheController {
 
             if (marchefound.statutMarche.statut != 'RECEPTION DEFINITIVE')
                 return res.send({ description: 'error', message: "L'objet Marché n'est n\'a pas le statut 'RECEPTION DEFINITIVE' " })
-
+            
+            const montantFacture = marcheAdd.montantFacture
             const remise = +marcheAdd.remise
-            const montantNetHt = marchefound.montantGlobal - remise
+            const montantNetHt = montantFacture - remise
             const Taux_AIB = +marcheAdd.taux_AIB
             const BaseAIB = montantNetHt
             const AIB = Math.round(BaseAIB * Taux_AIB / 100)
@@ -64,7 +65,7 @@ export class FactureMarcheController {
                 statut: 'NON PAYEE',
                 reference: ref,
                 montantPaye: 0,
-                montantFacture: netAPayer,
+                montantFacture,
                 netAPayer,
                 montantNetHt,
                 montantNetTTC,
@@ -72,12 +73,26 @@ export class FactureMarcheController {
                 AIB,
                 BaseAIB,
                 Taux_AIB,
-                remise
+                remise,
+                desgnOperation: marcheAdd.desgnOperation ? marcheAdd.desgnOperation : marchefound.designation
             }
             const result = await factureMarcheRepository.create(facture)
             const reslts = await factureMarcheRepository.save(result)
 
-            marchefound.montantFacture = netAPayer
+            const listInvoice = await factureMarcheRepository.find({
+                where:{
+                    marche:{
+                        id: marchefound.id
+                    }
+                }
+            })
+            let somme = 0
+            listInvoice.forEach(element => {
+                somme = element.montantFacture + somme
+            })
+
+            //MISE A JOUR MARCHE
+            marchefound.estEntierementFacture = (somme === marchefound.montantGlobal)
             await marcheRepository.update({ id: marchefound.id }, marchefound)
 
             return res.send({ description: 'success', data: reslts })

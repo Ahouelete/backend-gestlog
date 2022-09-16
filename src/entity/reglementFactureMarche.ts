@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from "typeorm"
 import { FactureMarche } from "./factureMarche"
+import { ImputationAvanceMarche } from "./imputation_avance_marche"
 import { ModeReglement } from "./modeReglement"
 
 @Entity()
@@ -32,6 +33,9 @@ export class ReglementFactureMarche {
     @ManyToOne(() => ModeReglement, (modeReglement) => modeReglement.reglementFactureMarche)
     @JoinColumn()
     modeReglement: ModeReglement
+
+    @OneToMany(() => ImputationAvanceMarche, (imputationAvanceMarche) => imputationAvanceMarche.reglementFactureMarche)
+    imputationAvanceMarche: ImputationAvanceMarche[]
 
     @Column({
         nullable: true

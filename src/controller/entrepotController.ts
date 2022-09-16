@@ -34,7 +34,9 @@ export class EntrepotController {
                     tiers: true
                 },
                 where: {
-                    tiers
+                    tiers: {
+                        id: tiers.id
+                    }
                 }
             })
             return res.send(results)

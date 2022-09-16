@@ -1,6 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, OneToMany, JoinColumn, ManyToOne, OneToOne } from "typeorm"
+import { DaoMotifRejet } from "./daoMotifRejet"
+import { DaoSoumissionnaire } from "./daoSoumissionaire"
 import { Famille } from "./famille"
 import { Marche } from "./marche"
+import { PieceJointeDao } from "./pieceJointeDao"
 import { StatutDao } from "./statutDao"
 import { Tiers } from "./tiers"
 
@@ -23,9 +26,6 @@ export class Dao {
     })
     designation: string
 
-    @Column("text")
-    soumissionnaire: string
-
     @Column({
         nullable: false
     })
@@ -43,10 +43,19 @@ export class Dao {
     dateAnnonce: Date
 
     @Column({
-        length: 100,
-        nullable: true
+        default: 0
     })
-    motif: string
+    nbreLot: number
+
+    @Column({
+        length: 200
+    })
+    designationLot: string
+
+    @Column({
+        default: 0
+    })
+    dureeValiditeDao: number
 
     @ManyToOne(() => StatutDao, (statutDao) => statutDao.daos)
     @JoinColumn()
@@ -58,4 +67,13 @@ export class Dao {
 
     @OneToOne(() => Marche, (marche) => marche.dao)
     marche: Marche
+
+    @OneToMany(() => PieceJointeDao, (pieceJointeDao) => pieceJointeDao.dao)
+    pieceJointeDao: PieceJointeDao[]
+
+    @OneToMany(() => DaoSoumissionnaire, (daoSoumissionnaire) => daoSoumissionnaire.dao)
+    daoSoumissionnaire: DaoSoumissionnaire[]
+
+    @OneToMany(() => DaoMotifRejet, (daoMotifRejet) => daoMotifRejet.dao)
+    daoMotifRejet: DaoMotifRejet[]
 }

@@ -1,6 +1,7 @@
 // imports
 import { AppDataSource } from "../data-source"
 import { ModeReglement } from "../entity/modeReglement"
+import { MotifRejet } from "../entity/motifDao"
 import { StatutDao } from "../entity/statutDao"
 import { StatutMarche } from "../entity/statutMarche"
 import { TypeArticle } from "../entity/typeArticle"
@@ -49,6 +50,25 @@ const statutMarcheObject = [
     {
         id: 3,
         statut: "RECEPTION DEFINITIVE"
+    },
+    {
+        id: 4,
+        statut: "MISE EN REGIS"
+    }
+]
+
+const motifRejetObject = [
+    {
+        id: 1,
+        motif: "REJETER POUR DEFAUT DE PIECES"
+    },
+    {
+        id: 2,
+        motif: "REJETER POUR MONTANT ELEVE"
+    },
+    {
+        id: 3,
+        motif: "REJETER POUR EXPERIENCES INSUFFISANTES"
     }
 ]
 
@@ -216,6 +236,7 @@ const typeDocumentRepository = AppDataSource.getRepository(TypeDocument)
 const typeTiersRepository = AppDataSource.getRepository(TypeTiers)
 const modeReglementtRepository = AppDataSource.getRepository(ModeReglement)
 const typeArticleRepository = AppDataSource.getRepository(TypeArticle)
+const motifRejetRepository = AppDataSource.getRepository(MotifRejet)
 
 export class MetaData {
     //Controller
@@ -229,6 +250,15 @@ export class MetaData {
                 statutDao.statut = s.statut
                 await statutDaoRepository.save(statutDao)
             })
+
+             // ADD MotifRejet
+             motifRejetObject.forEach(async s => {
+                const motif = new MotifRejet()
+                motif.id = s.id
+                motif.motif = s.motif
+                await motifRejetRepository.save(motif)
+            })
+
             // ADD statut Marche
             statutMarcheObject.forEach(async s => {
                 const statutMarche = new StatutMarche()
@@ -325,6 +355,16 @@ export class MetaData {
     async allTypeDocument(req, res, next) {
         try {
             const results = await typeDocumentRepository.find()
+            return res.send(results).status(200)
+        } catch (error) {
+            return res.send(error).status(500)
+        }
+    }
+
+      // GET ALL type Document
+      async allMotifRejet(req, res, next) {
+        try {
+            const results = await motifRejetRepository.find()
             return res.send(results).status(200)
         } catch (error) {
             return res.send(error).status(500)

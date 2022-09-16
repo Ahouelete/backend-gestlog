@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, OneToMany, JoinColumn, ManyToOne, OneToOne } from "typeorm"
+import { AvanceMarche } from "./avance_marche"
 import { Chantier } from "./chantier"
 import { Dao } from "./dao"
 import { FactureMarche } from "./factureMarche"
@@ -74,6 +75,11 @@ export class Marche {
     @Column()
     montantGlobal: number
 
+    @Column({
+        default: false
+    })
+    estEntierementFacture: boolean
+
     @Column()
     montantFacture: number
 
@@ -100,9 +106,12 @@ export class Marche {
     @JoinColumn()
     statutMarche: StatutMarche
 
-    @OneToOne(() => FactureMarche, (factureMarche) => factureMarche.marche)
-    factureMarche: FactureMarche
+    @OneToMany(() => FactureMarche, (factureMarche) => factureMarche.marche)
+    factureMarche: FactureMarche[]
 
     @OneToMany(() => Chantier, (chantier) => chantier.marche)
     chantier: Chantier[]
+
+    @OneToMany(() => AvanceMarche, (avance_marche) => avance_marche.marche)
+    avance_marche: AvanceMarche[]
 }   

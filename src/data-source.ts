@@ -58,7 +58,7 @@ export const AppDataSource = new DataSource({
      synchronize: true,
      logging: false,
      name: "default",
-     url: "postgres://ilhahdjvobiymw:249c2299d536e529e7374cc8df4060ef313e107563d5d35e9222e5d2a9b8b645@ec2-54-228-218-84.eu-west-1.compute.amazonaws.com:5432/d6gerrmiot1fqg",
+     url: "postgres://qnfyazdadvndqz:733f74fa3ea88cfe2ddda4e7208a1fbe8235cc29d0af1b6b6e721ae2f522f054@ec2-18-208-55-135.compute-1.amazonaws.com:5432/dc12s54nd84ecu",
      entities: [User, Famille, Article, StatutDao, Dao, StatutMarche, TypeFinancement, Marche, TypeDocument, TypeTiers,
         TypeCaution, CategorieArticle, CategorieTarifaire, Panne, DeclarationPanne, Tiers, TypeArticle, ModeReglement,
         Entrepot, OperationChantier, Taxe, FactureMarche, ReglementFactureMarche, P_MECEF, P_SOCIETE,
